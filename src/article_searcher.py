@@ -88,8 +88,8 @@ class ArticleSearcher(object):
             url_components = urlparse(url)
             return f"{url_components.scheme}://{url_components.netloc}{url_components.path}"
 
-        search_result = BeautifulSoup(search_result, "html.parser")
-        article_list = search_result.find("div", attrs={"class": "js-postListHandle"})
+        soup = BeautifulSoup(search_result, "html.parser")
+        article_list = soup.find("div", attrs={"class": "js-postListHandle"})
         articles = article_list.find_all("div", attrs={"class": "postArticle-content"})
 
         return [remove_query_parameters(article.find("a")["href"]) for article in articles]

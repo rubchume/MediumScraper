@@ -155,3 +155,33 @@ class ArticleStorageTests(unittest.TestCase):
             ),
             pd.read_csv("tests/helpers/new_storage/index.txt").astype("str")
         )
+
+    def test_return_number_of_articles(self):
+        # Given
+        article_storage = ArticleStorage()
+        article_storage.create(directory="tests/helpers/new_storage")
+        article1 = Article(
+            id="234",
+            url="somepage.com/path/to/article",
+            author="Cervantes",
+            title="Don Quijote New Version",
+            paragraphs=[
+                "En un lugar de la mancha de cuyo nombre no quiero acordarme...",
+                "no hace mucho que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor."
+            ]
+        )
+        article2 = Article(
+            id="asdf4",
+            url="somepage.com/path/to/other_article",
+            author="Lope de Vega",
+            title="Sonetos y más sonetos",
+            paragraphs=[
+                "Un soneto me ha mandado hacer Violante,",
+                "en mi vida me he visto en tal aprieto,"
+            ]
+        )
+        # When
+        article_storage.add(article1)
+        article_storage.add(article2)
+        # Then
+        self.assertEqual(2, article_storage.num_articles)
