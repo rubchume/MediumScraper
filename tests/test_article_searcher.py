@@ -6,7 +6,7 @@ from src.article_searcher import ArticleSearcher
 
 
 class ArticleSearcherTests(unittest.TestCase):
-    def test_get_urls_from_search_results(self):
+    def test_parse_urls_from_search_results(self):
         # Given
         with open("tests/helpers/example_search_result_1.html", "r", encoding="utf-8") as file:
             search_result = file.read()
@@ -215,4 +215,16 @@ class ArticleSearcherTests(unittest.TestCase):
                 'back-to-basics-deriving-back-propagation-on-simple-rnn-lstm-feat-aidan-gomez-c7f286ba973d'
             ],
             urls
+        )
+
+    @requests_mock.Mocker()
+    def test_raise_runtime_error_if_http_response_is_different_from_200(self, mock):
+        with open("tests/helpers/example_search_result_1.html", "r", encoding="utf-8") as file:
+            mock.get("https://medium.com/search?q=mySearchTerm", text=file.read(), status_code=404)
+        article_searcher = ArticleSearcher()
+        article_searcher.start(search_term="mySearchTerm")
+        # Then
+        self.assertRaises(
+            RuntimeError,
+            article_searcher.get_next_article_urls,
         )
