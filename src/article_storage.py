@@ -18,6 +18,10 @@ class ArticleStorage(object):
         self.directory = None
         self._metadata = None
 
+    @property
+    def num_articles(self):
+        return len(self._metadata)
+
     def create(self, directory):
         def directory_is_not_empty():
             if not path.isdir(directory):
