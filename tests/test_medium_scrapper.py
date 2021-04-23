@@ -70,16 +70,25 @@ class MediumScrapperTests(unittest.TestCase):
         # When
         article = MediumScraper.scrape_medium_article("http://some_article.com")
         # Then
-        self.assertEqual("SEO Secrets: Reverse-Engineering Google’s Algorithm | by benjamin bannister | freeCodeCamp.org | Medium", article.title)
+        self.assertEqual(
+            "SEO Secrets: Reverse-Engineering Google’s Algorithm | by benjamin bannister | freeCodeCamp.org | Medium",
+            article.title
+        )
 
     @requests_mock.Mocker()
     def test_find_medium_article_author_when_returned_page_is_json(self, mock):
         # Given
         with open("tests/helpers/example_article_1.json", "r", encoding="utf-8") as file:
             article_json = file.read()
-        mock.get("https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39?format=json", text=article_json)
+        mock.get(
+            "https://medium.com/free-code-camp/"
+            "seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39?format=json",
+            text=article_json
+        )
         # When
-        article = MediumScraper.scrape_medium_article("https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39")
+        article = MediumScraper.scrape_medium_article(
+            "https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39"
+        )
         # Then
         self.assertEqual("benjamin bannister", article.author)
 
@@ -88,9 +97,15 @@ class MediumScrapperTests(unittest.TestCase):
         # Given
         with open("tests/helpers/example_article_1.html", "r", encoding="utf-8") as file:
             article_json = file.read()
-        mock.get("https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39?format=json", text=article_json)
+        mock.get(
+            "https://medium.com/free-code-camp/"
+            "seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39?format=json",
+            text=article_json
+        )
         # When
-        article = MediumScraper.scrape_medium_article("https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39")
+        article = MediumScraper.scrape_medium_article(
+            "https://medium.com/free-code-camp/seo-secrets-reverse-engineering-googles-algorithm-92fad4f5a39"
+        )
         # Then
         self.assertEqual("benjamin bannister", article.author)
 
@@ -104,7 +119,10 @@ class MediumScrapperTests(unittest.TestCase):
         article = MediumScraper.scrape_medium_article("http://some_article.com/some_path/article")
         # Then
         self.assertEqual("SEO Secrets: Reverse-Engineering Google’s Algorithm", article.paragraphs[0])
-        self.assertEqual("SEO. Three letters to know if you want your content found. Image: benjamin bannister", article.paragraphs[1])
+        self.assertEqual(
+            "SEO. Three letters to know if you want your content found. Image: benjamin bannister",
+            article.paragraphs[1]
+        )
         self.assertEqual(
             "What have I learned from creating content for the internet? One thing is crystal clear:"
             " if you want people to discover your work, you need search engine optimization (SEO).",
@@ -126,68 +144,3 @@ class MediumScrapperTests(unittest.TestCase):
             " if you want people to discover your work, you need search engine optimization (SEO).",
             article.paragraphs[1]
         )
-
-    def test_get_urls_from_search_results(self):
-        # Given
-        with open("tests/helpers/example_search_result_1.html", "r", encoding="utf-8") as file:
-            search_result = file.read()
-        # When
-        urls = MediumScraper.get_article_urls(search_result)
-        # Then
-        self.assertEqual(
-            [
-                'https://medium.com/airbnb-engineering/experimentation-measurement-for-search-engine-optimization-b64136629760',
-                'https://medium.com/blogging-guide/medium-article-search-engine-optimization-medium-seo-9249f18e8e76',
-                'https://medium.com/cool-code-pal/introducing-web-components-and-what-it-means-for-search-engine-optimization-and-privacy-b21bfc1f63c7',
-                'https://medium.com/the-logician/seo-guide-d534b69ce1c7',
-                'https://medium.com/@myxys/seo-101-complete-search-engine-optimization-guide-checklist-97153741cfe6',
-                'https://medium.com/write-to-blog/how-to-learn-search-engine-optimization-for-beginning-bloggers-765fe895d2d3',
-                'https://medium.com/swlh/why-i-suck-at-search-engine-optimization-7777e6d0441f',
-                'https://medium.com/age-of-awareness/search-engine-optimization-seo-for-new-writers-what-it-is-and-why-you-should-care-d36b8a1d000d',
-                'https://medium.datadriveninvestor.com/why-seo-is-more-than-just-search-engine-optimization-285f75337702',
-                'https://medium.com/@tyohan/progressive-web-app-search-engine-optimization-in-shuvayatra-app-a7c111671338'
-            ],
-            urls
-        )
-
-    @requests_mock.Mocker()
-    def test_get_urls_from_search_term(self, mock):
-        with open("tests/helpers/example_search_result_1.html", "r", encoding="utf-8") as file:
-            search_result = file.read()
-        mock.get("https://medium.com/search?q=mySearchTerm", text=search_result)
-        # When
-        urls, article_ids = MediumScraper.search_articles("mySearchTerm", num_articles=10)
-        # Then
-        self.assertEqual(1, mock.call_count)
-        self.assertEqual("https://medium.com/search?q=mySearchTerm", mock.request_history[0].url)
-        self.assertEqual(
-            [
-                'https://medium.com/airbnb-engineering/experimentation-measurement-for-search-engine-optimization-b64136629760',
-                'https://medium.com/blogging-guide/medium-article-search-engine-optimization-medium-seo-9249f18e8e76',
-                'https://medium.com/cool-code-pal/introducing-web-components-and-what-it-means-for-search-engine-optimization-and-privacy-b21bfc1f63c7',
-                'https://medium.com/the-logician/seo-guide-d534b69ce1c7',
-                'https://medium.com/@myxys/seo-101-complete-search-engine-optimization-guide-checklist-97153741cfe6',
-                'https://medium.com/write-to-blog/how-to-learn-search-engine-optimization-for-beginning-bloggers-765fe895d2d3',
-                'https://medium.com/swlh/why-i-suck-at-search-engine-optimization-7777e6d0441f',
-                'https://medium.com/age-of-awareness/search-engine-optimization-seo-for-new-writers-what-it-is-and-why-you-should-care-d36b8a1d000d',
-                'https://medium.datadriveninvestor.com/why-seo-is-more-than-just-search-engine-optimization-285f75337702',
-                'https://medium.com/@tyohan/progressive-web-app-search-engine-optimization-in-shuvayatra-app-a7c111671338'
-            ],
-            urls
-        )
-        self.assertEqual(
-            [
-                "b64136629760",
-                "9249f18e8e76",
-                "b21bfc1f63c7",
-                "d534b69ce1c7",
-                "97153741cfe6",
-                "765fe895d2d3",
-                "7777e6d0441f",
-                "d36b8a1d000d",
-                "285f75337702",
-                "a7c111671338",
-            ],
-            article_ids
-        )
-
