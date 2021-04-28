@@ -1,3 +1,4 @@
+import warnings
 from datetime import date, datetime
 import unittest
 from unittest import mock
@@ -78,7 +79,10 @@ class ArchiveSearcherTests(unittest.TestCase):
         expected_archive_url = "https://medium.com/tag/arros_al_forn/archive/2021/04/03"
         m.get(expected_archive_url, exc=requests.exceptions.Timeout)
         # When
-        urls = ArchiveSearcher._get_articles_for_day(tag="arros_al_forn", day=date(2021, 4, 3))
+        with warnings.catch_warnings(record=True) as w:
+            urls = ArchiveSearcher._get_articles_for_day(tag="arros_al_forn", day=date(2021, 4, 3))
+            self.assertEqual(1, len(w))
+            self.assertEqual("Timeout when getting articles for the day 2021-04-03", str(w[0].message))
         # Then
         self.assertEqual(expected_archive_url, m.request_history[0].url)
         self.assertEqual([], urls)
@@ -89,7 +93,10 @@ class ArchiveSearcherTests(unittest.TestCase):
         expected_archive_url = "https://medium.com/tag/arros_al_forn/archive/2021/04/03"
         m.get(expected_archive_url, status_code=404)
         # When
-        urls = ArchiveSearcher._get_articles_for_day(tag="arros_al_forn", day=date(2021, 4, 3))
+        with warnings.catch_warnings(record=True) as w:
+            urls = ArchiveSearcher._get_articles_for_day(tag="arros_al_forn", day=date(2021, 4, 3))
+            self.assertEqual(1, len(w))
+            self.assertEqual("HTTP status was 404", str(w[0].message))
         # Then
         self.assertEqual(expected_archive_url, m.request_history[0].url)
         self.assertEqual([], urls)

@@ -54,7 +54,14 @@ class ArticleScraper(object):
     def __init__(self, minimum_duration_minutes=2):
         self.minimum_duration_minutes = minimum_duration_minutes
 
-    def compile_articles(self, search_term: str, num_articles: int, directory="articles"):
+    def compile_articles(
+            self,
+            search_term: str,
+            num_articles: int,
+            directory="articles",
+            num_download_threads=10,
+            queues_max_size=100,
+    ):
         logger.info("Start article compilation")
 
         searcher = ArchiveSearcher(search_term=search_term)
@@ -62,8 +69,6 @@ class ArticleScraper(object):
         storage = ArticleStorage()
         storage.create(directory, force=True)
 
-        num_download_threads = 10
-        queues_max_size = 100
         num_parse_processes = multiprocessing.cpu_count()
 
         keep_going = multiprocessing.Value("i", 1)
@@ -109,7 +114,7 @@ class ArticleScraper(object):
             output_queue=articles,
             external_workers_to_wait_for=num_active_downloaders,
             num_active_workers=num_active_parsers,
-            name="Download article pages job",
+            name="Parse article pages job",
             concurrent=True
         )
         parse_articles_job.start()
@@ -140,7 +145,7 @@ class ArticleScraper(object):
                 break
 
             logger.info(f"Number of articles saved: {storage.num_articles}")
-            time.sleep(5)
+            time.sleep(20)
 
         logger.info("Downloading remaining URLs")
         get_urls_job.join()
@@ -183,10 +188,10 @@ class ArticleScraper(object):
         try:
             article_id, title, author, paragraphs, duration_minutes = self._parse_article_page(page.response.text)
         except TypeError as e:
-            print(f"TypeError: {e}")
+            logger.info(f"TypeError: {e}")
             return None, ErrorCodes.DECODING_ERROR
         except TooShortError:
-            print("Article is too short. Discard.")
+            logger.info("Article is too short. Discard.")
             return None, ErrorCodes.TOO_SHORT
 
         return Article(
