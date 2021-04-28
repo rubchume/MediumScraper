@@ -1,6 +1,7 @@
 import os
 from os import listdir
 from os import path
+import shutil
 
 import pandas as pd
 
@@ -19,20 +20,24 @@ class ArticleStorage(object):
         self._metadata = None
 
     @property
-    def num_articles(self):
+    def num_articles(self) -> int:
         return len(self._metadata)
 
-    def create(self, directory):
+    def create(self, directory, force=False):
         def directory_is_not_empty():
-            if not path.isdir(directory):
-                return False
-
             return any([path.isfile(path.join(directory, f)) for f in listdir(directory)])
 
-        if directory_is_not_empty():
-            raise ValueError("New storage must be set in an empty or not-existent directory")
+        def directory_exists():
+            return path.isdir(directory)
 
-        if not path.isdir(directory):
+        if directory_exists():
+            if directory_is_not_empty():
+                if force:
+                    shutil.rmtree(directory)
+                    os.mkdir(directory)
+                else:
+                    raise ValueError("New storage must be set in an empty or not-existent directory")
+        else:
             os.mkdir(directory)
 
         self.directory = directory
@@ -42,7 +47,7 @@ class ArticleStorage(object):
         pd.DataFrame(
             self._metadata,
             columns=self.FIELDS
-        ).to_csv(f"{self.directory}/index.txt", index=False, header=True)
+        ).to_csv(f"{self.directory}/index.csv", index=False, header=True)
 
     def add(self, article):
         self._metadata.append(self._get_metadata(article))

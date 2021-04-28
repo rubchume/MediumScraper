@@ -26,6 +26,24 @@ class ArticleStorageTests(unittest.TestCase):
             directory="tests/helpers"
         )
 
+    def test_create_storage_in_a_non_empty_folder_does_not_fail_if_force_flag_is_true(self):
+        # Given
+        os.mkdir("tests/helpers/new_storage")
+        with open("tests/helpers/new_storage/file.txt", "w") as file:
+            file.write("some content")
+
+        article_storage = ArticleStorage()
+        # When
+        article_storage.create("tests/helpers/new_storage", force=True)
+        article_storage.close()
+        # Then
+        files_in_directory = [
+            file for file in listdir("tests/helpers/new_storage")
+            if isfile(join("tests/helpers/new_storage", file))
+        ]
+        self.assertEqual(1, len(files_in_directory))
+        self.assertEqual("index.csv", files_in_directory[0])
+
     def test_create_storage_in_an_empty_directory_does_not_fail(self):
         # Given
         article_storage = ArticleStorage()
@@ -39,7 +57,7 @@ class ArticleStorageTests(unittest.TestCase):
             if isfile(join("tests/helpers/new_storage", file))
         ]
         self.assertEqual(1, len(files_in_directory))
-        self.assertEqual("index.txt", files_in_directory[0])
+        self.assertEqual("index.csv", files_in_directory[0])
 
     def test_create_and_close_storage_creates_an_index_file(self):
         # Given
@@ -53,13 +71,13 @@ class ArticleStorageTests(unittest.TestCase):
             if isfile(join("tests/helpers/new_storage", file))
         ]
         self.assertEqual(1, len(files_in_directory))
-        self.assertEqual("index.txt", files_in_directory[0])
+        self.assertEqual("index.csv", files_in_directory[0])
         assert_frame_equal(
             pd.DataFrame(
                 [],
                 columns=["Id", "URL", "Author", "Title"]
             ),
-            pd.read_csv("tests/helpers/new_storage/index.txt")
+            pd.read_csv("tests/helpers/new_storage/index.csv")
         )
 
     def test_add_article(self):
@@ -99,7 +117,7 @@ class ArticleStorageTests(unittest.TestCase):
                     "Title": ["Don Quijote New Version"]
                 },
             ),
-            pd.read_csv("tests/helpers/new_storage/index.txt").astype("str")
+            pd.read_csv("tests/helpers/new_storage/index.csv").astype("str")
         )
 
     def test_add_many_articles(self):
@@ -153,7 +171,7 @@ class ArticleStorageTests(unittest.TestCase):
                     "Title": ["Don Quijote New Version", "Sonetos y más sonetos"]
                 },
             ),
-            pd.read_csv("tests/helpers/new_storage/index.txt").astype("str")
+            pd.read_csv("tests/helpers/new_storage/index.csv").astype("str")
         )
 
     def test_return_number_of_articles(self):
