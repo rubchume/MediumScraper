@@ -9,7 +9,11 @@ pip install -r requirements.txt
 ```
 
 # Execution
-To be completed
+Execute the command 
+```bash
+jupyter notebook
+```
+to open the Jupyter Notebook and see how to use the program.
 
 # Test
 Test the application with Pytest using

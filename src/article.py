@@ -9,3 +9,10 @@ class Article:
     title: Optional[str] = None
     author: Optional[str] = None
     paragraphs: Optional[List[str]] = None
+
+    @property
+    def num_words(self) -> int:
+        if not self.paragraphs:
+            return 0
+
+        return sum([len(paragraph.split(" ")) for paragraph in self.paragraphs])

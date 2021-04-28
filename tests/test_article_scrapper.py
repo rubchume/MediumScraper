@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import unittest
 from unittest import mock
 
@@ -47,7 +48,7 @@ class ArticleScrapperTests(unittest.TestCase):
         # When
         article, error_code = ArticleScraper.scrape("http://some_article.com")
         # Then
-        self.assertEqual(0, error_code.value)
+        self.assertEqual(200, error_code.value)
         self.assertEqual(
             "SEO Secrets: Reverse-Engineering Google’s Algorithm | by benjamin bannister | freeCodeCamp.org | Medium",
             article.title
@@ -62,7 +63,7 @@ class ArticleScrapperTests(unittest.TestCase):
         # When
         article, error_code = ArticleScraper.scrape("http://some_article.com")
         # Then
-        self.assertEqual(0, error_code.value)
+        self.assertEqual(200, error_code.value)
         self.assertEqual(
             "92fad4f5a39",
             article.id
@@ -100,3 +101,16 @@ class ArticleScrapperTests(unittest.TestCase):
             " if you want people to discover your work, you need search engine optimization (SEO).",
             article.paragraphs[1]
         )
+
+    @requests_mock.Mocker()
+    def test_assign_unkown_error_code_when_http_status_code_is_not_included_in_custom_error_codes(self, mock):
+        # Given
+        with open("tests/helpers/example_article_1.html", "r", encoding="utf-8") as file:
+            article_json = file.read()
+        mock.get(
+            "http://some_article.com/some_path/article", text=article_json, status_code=HTTPStatus.INSUFFICIENT_STORAGE
+        )
+        # When
+        article, error_code = ArticleScraper.scrape("http://some_article.com/some_path/article")
+        # Then
+        self.assertEqual(ErrorCodes.UNKNOWN_ERROR, error_code)
