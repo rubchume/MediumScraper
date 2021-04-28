@@ -9,6 +9,7 @@ class Article:
     title: Optional[str] = None
     author: Optional[str] = None
     paragraphs: Optional[List[str]] = None
+    duration_minutes: Optional[int] = None
 
     @property
     def num_words(self) -> int:
