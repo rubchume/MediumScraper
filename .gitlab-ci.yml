@@ -3,7 +3,7 @@ stages:
   - deploy
 
 Test:
-  image: python:3
+  image: python:3.8
   stage: test
   script:
     - pip3 install poetry

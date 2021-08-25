@@ -143,9 +143,9 @@ jupyter-server==1.6.4; python_version >= "3.6" \
 jupyterlab-pygments==0.1.2; python_version >= "3.6" \
     --hash=sha256:abfb880fd1561987efaefcb2d2ac75145d2a5d0139b1876d5be806e32f630008 \
     --hash=sha256:cfcda0873626150932f438eccf0f8bf22bfa92345b814890ab360d666b254146
-jupyterlab-server==2.4.0; python_version >= "3.6" \
-    --hash=sha256:94e606edb7b60e3fc54b8b4de14cded1483959361df9023e50092b6f8ede9cf6 \
-    --hash=sha256:2a7f0b125a59a7cc543f62e5f9dea50b44b3459b3f679db7e3dbe0f8616f90bc
+jupyterlab-server==2.5.0; python_version >= "3.6" \
+    --hash=sha256:c29784df3269d45f54a1e23e041ae9e8638773fa6b11095938b4d30bec1c75c6 \
+    --hash=sha256:4c2c482cc91b7439ea5415f8f85ded95059fb9cdab03f5f0e6338246830c2a5c
 jupyterlab==3.0.14; python_version >= "3.6" \
     --hash=sha256:223ad786032119f495edc894a81925b6cc327a184f150adbc4e5ef94965d4921 \
     --hash=sha256:713a84991dfcca8c0bc260911f1bd54ac25a386a86285713b9555a60f795059b
@@ -254,9 +254,6 @@ pandocfilters==1.4.3; python_version >= "3.6" and python_full_version < "3.0.0" 
 parso==0.8.2; python_version >= "3.7" \
     --hash=sha256:a8c4922db71e4fdb90e0d0bc6e50f9b273d3397925e5e60a717e719201778d22 \
     --hash=sha256:12b83492c6239ce32ff5eed6d3639d6a536170723c6f3f1506869f1ace413398
-patool==1.12 \
-    --hash=sha256:3f642549c9a78f5b8bef1af92df385b521d360520d1f34e4dba3fd1dee2a21bc \
-    --hash=sha256:e3180cf8bfe13bedbcf6f5628452fca0c2c84a3b5ae8c2d3f55720ea04cb1097
 pexpect==4.8.0; sys_platform != "win32" and python_version >= "3.7" \
     --hash=sha256:0b48a55dcb3c05f3329815901ea4fc1537514d6ba867a152b581d69ae3710937 \
     --hash=sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c
@@ -303,17 +300,12 @@ pywin32==300; sys_platform == "win32" and python_version >= "3.6" \
     --hash=sha256:60a8fa361091b2eea27f15718f8eb7f9297e8d51b54dbc4f55f3d238093d5190 \
     --hash=sha256:638b68eea5cfc8def537e43e9554747f8dee786b090e47ead94bfdafdb0f2f50 \
     --hash=sha256:b1609ce9bd5c411b81f941b246d683d6508992093203d4eb7f278f4ed1085c3f
-pywinpty==0.5.7; os_name == "nt" and python_version >= "3.6" \
-    --hash=sha256:b358cb552c0f6baf790de375fab96524a0498c9df83489b8c23f7f08795e966b \
-    --hash=sha256:1e525a4de05e72016a7af27836d512db67d06a015aeaf2fa0180f8e6a039b3c2 \
-    --hash=sha256:2740eeeb59297593a0d3f762269b01d0285c1b829d6827445fcd348fb47f7e70 \
-    --hash=sha256:33df97f79843b2b8b8bc5c7aaf54adec08cc1bae94ee99dfb1a93c7a67704d95 \
-    --hash=sha256:e854211df55d107f0edfda8a80b39dfc87015bef52a8fe6594eb379240d81df2 \
-    --hash=sha256:dbd838de92de1d4ebf0dce9d4d5e4fc38d0b7b1de837947a18b57a882f219139 \
-    --hash=sha256:5fb2c6c6819491b216f78acc2c521b9df21e0f53b9a399d58a5c151a3c4e2a2d \
-    --hash=sha256:dd22c8efacf600730abe4a46c1388355ce0d4ab75dc79b15d23a7bd87bf05b48 \
-    --hash=sha256:8fc5019ff3efb4f13708bd3b5ad327589c1a554cb516d792527361525a7cb78c \
-    --hash=sha256:2d7e9c881638a72ffdca3f5417dd1563b60f603e1b43e5895674c2a1b01f95a0
+pywinpty==1.0.1; os_name == "nt" and python_version >= "3.6" \
+    --hash=sha256:739094e8d0d685a64c92ff91424cf43da9296110349036161ab294268e444d05 \
+    --hash=sha256:5447b8c158e5807237f80ea4e14262f0c05ff7c4d39f1c4b697ea6e8920786b2 \
+    --hash=sha256:aa3e4178503ff6be3e8a1d9ae4ce77de9058308562dbf26b505a51583be9f02d \
+    --hash=sha256:58e23d59891e624d478ec7bcc42ced0ecfbf0a4e7cb0217de714f785f71c2461 \
+    --hash=sha256:b3512d4a964a0abae1b77b6908917c62ea0ad7d8178696e4e973877fe9e820f9
 pyyaml==5.4.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" \
     --hash=sha256:3b2b1824fe7112845700f815ff6a489360226a5609b96ec2190a45e62a9fc922 \
     --hash=sha256:129def1b7c1bf22faffd67b8f3724645203b79d8f4cc81f674654d9902cb4393 \

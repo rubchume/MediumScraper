@@ -7,7 +7,7 @@ authors = ["Rubén <rchulia@outlook.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 pandas = "^1.2.4"
-jupyterlab = "^3.0.14"
+jupyterlab = "^3.1.8"
 beautifulsoup4 = "^4.9.3"
 jupyter_nbextensions_configurator = "^0.4.1"
 
@@ -36,6 +36,7 @@ source = ["src", "*/site-packages"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = ["src/article_scraper.py"]
 
 [tool.coverage.report]
 show_missing = true

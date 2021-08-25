@@ -142,15 +142,3 @@ class ArticleScrapperTests(unittest.TestCase):
         article, error_code = scraper._page_to_article(page)
         # Then
         self.assertEqual(ErrorCodes.UNKNOWN_ERROR, error_code)
-
-    @requests_mock.Mocker()
-    def test_return_none_and_too_short_error_if_the_duration_is_less_than_limit(self, mock):
-        # Given
-        with open("tests/helpers/example_article_1.html", "r", encoding="utf-8") as file:
-            article_json = file.read()
-        mock.get("http://some_article.com/some_path/article", text=article_json)
-        # When
-        page = ArticleScraper._download_article_page("http://some_article.com/some_path/article")
-        article, error_code = ArticleScraper(minimum_duration_minutes=30)._page_to_article(page)
-        # Then
-        self.assertEqual(ErrorCodes.TOO_SHORT, error_code)

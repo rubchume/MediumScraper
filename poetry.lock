@@ -666,17 +666,16 @@ test = ["coverage", "pytest", "pytest-cov", "pytest-mock", "requests", "pytest-t
 
 [[package]]
 name = "jupyterlab"
-version = "3.0.14"
-description = "The JupyterLab server extension."
+version = "3.1.8"
+description = "JupyterLab computational environment"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
 ipython = "*"
-jinja2 = ">=2.10"
+jinja2 = ">=2.1"
 jupyter-core = "*"
-jupyter-packaging = ">=0.7,<1.0"
 jupyter-server = ">=1.4,<2.0"
 jupyterlab-server = ">=2.3,<3.0"
 nbclassic = ">=0.2,<1.0"
@@ -684,8 +683,8 @@ packaging = "*"
 tornado = ">=6.1.0"
 
 [package.extras]
-docs = ["jsx-lexer", "recommonmark", "sphinx", "sphinx-rtd-theme", "sphinx-copybutton"]
-test = ["pytest (>=6.0)", "pytest-cov", "pytest-console-scripts", "pytest-check-links", "jupyterlab-server[test] (>=2.0,<3.0)", "requests", "wheel", "virtualenv", "nose-exclude"]
+test = ["coverage", "pytest (>=6.0)", "pytest-cov", "pytest-console-scripts", "pytest-check-links (>=0.5)", "jupyterlab-server[test] (>=2.2,<3.0)", "requests", "requests-cache", "virtualenv", "check-manifest"]
+ui-tests = ["build"]
 
 [[package]]
 name = "jupyterlab-pygments"
@@ -1466,7 +1465,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "953f746a84c4b68b87c287ab5c4f790a5a75a09f6c8cfa0772f6ebdc4c5b2762"
+content-hash = "da8689d75da8f1b0b05f7afcd9d5f610f7616f6ea91f5c37fc3ccba8829b701c"
 
 [metadata.files]
 anyio = [
@@ -1774,8 +1773,8 @@ jupyter-server = [
     {file = "jupyter_server-1.6.4.tar.gz", hash = "sha256:21c20986047563aba2997cb10ba9441a162ec1d65b5aece9d5fa625602bb2b40"},
 ]
 jupyterlab = [
-    {file = "jupyterlab-3.0.14-py3-none-any.whl", hash = "sha256:223ad786032119f495edc894a81925b6cc327a184f150adbc4e5ef94965d4921"},
-    {file = "jupyterlab-3.0.14.tar.gz", hash = "sha256:713a84991dfcca8c0bc260911f1bd54ac25a386a86285713b9555a60f795059b"},
+    {file = "jupyterlab-3.1.8-py3-none-any.whl", hash = "sha256:5b7bcb38c205068e532c2ad127952e1fe539d2950b470da3d9c756a34f19709a"},
+    {file = "jupyterlab-3.1.8.tar.gz", hash = "sha256:113cf7a033547f90efba96bb3c1b5fbcf1fd194e1c1b52b24f3e3fd619083a3b"},
 ]
 jupyterlab-pygments = [
     {file = "jupyterlab_pygments-0.1.2-py2.py3-none-any.whl", hash = "sha256:abfb880fd1561987efaefcb2d2ac75145d2a5d0139b1876d5be806e32f630008"},

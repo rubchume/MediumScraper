@@ -6,6 +6,7 @@ import multiprocessing
 import re
 import time
 from typing import Optional, Tuple
+from urllib.parse import urlparse
 import warnings
 
 from bs4 import BeautifulSoup
@@ -24,11 +25,13 @@ class ErrorCodes(Enum):
     CONNECTION_ERROR = 2
     TIMEOUT = 3
     DECODING_ERROR = 4
-    TOO_SHORT = 5
     OK = HTTPStatus.OK.value
     NOT_FOUND = HTTPStatus.NOT_FOUND.value
     FORBIDDEN = HTTPStatus.FORBIDDEN.value
     UNKNOWN_ERROR = -1
+
+
+ErrorCodeNames = [code.name for code in ErrorCodes]
 
 
 @dataclass
@@ -37,7 +40,7 @@ class Page:
     error_code: ErrorCodes
 
 
-ErrorCodeNames = [code.name for code in ErrorCodes]
+num_cpus = multiprocessing.cpu_count()
 
 
 class ArticleScraper(object):
@@ -51,25 +54,30 @@ class ArticleScraper(object):
         "x-xsrf-token": "1",
     }
 
-    def __init__(self, minimum_duration_minutes=2):
-        self.minimum_duration_minutes = minimum_duration_minutes
-
+    @classmethod
     def compile_articles(
-            self,
+            cls,
             search_term: str,
             num_articles: int,
             directory="articles",
-            num_download_threads=10,
+            minimum_duration_minutes=5,
+            lenient=False,
+            num_days_searched_in_parallel=5,
+            num_download_threads=20,
+            num_parse_processes=num_cpus,
             queues_max_size=100,
     ):
         logger.info("Start article compilation")
 
-        searcher = ArchiveSearcher(search_term=search_term)
+        searcher = ArchiveSearcher(
+            search_term=search_term,
+            max_threads=num_days_searched_in_parallel,
+            minimum_duration_minutes=minimum_duration_minutes,
+            lenient=lenient
+        )
 
         storage = ArticleStorage()
         storage.create(directory, force=True)
-
-        num_parse_processes = multiprocessing.cpu_count()
 
         keep_going = multiprocessing.Value("i", 1)
         num_active_searchers = multiprocessing.Value("i", 1)
@@ -83,7 +91,7 @@ class ArticleScraper(object):
         logger.info("Create searching results job")
 
         def get_next_batches():
-            urls_list = searcher.get_next_batches(num_batches=2)
+            urls_list = searcher.get_next_batches(num_batches=num_days_searched_in_parallel)
             return urls_list, False
 
         get_urls_job = MapReduce(
@@ -96,8 +104,10 @@ class ArticleScraper(object):
         )
         get_urls_job.start()
 
+        logger.info("Create download articles job")
+
         download_article_pages_job = MapReduce(
-            function=self._download_article_page,
+            function=cls._download_article_page,
             num_workers=num_download_threads,
             input_queue=urls,
             output_queue=pages,
@@ -107,8 +117,10 @@ class ArticleScraper(object):
         )
         download_article_pages_job.start()
 
+        logger.info("Create parse articles job")
+
         parse_articles_job = MapReduce(
-            function=self._page_to_article,
+            function=cls._page_to_article,
             num_workers=num_parse_processes,
             input_queue=pages,
             output_queue=articles,
@@ -118,6 +130,8 @@ class ArticleScraper(object):
             concurrent=True
         )
         parse_articles_job.start()
+
+        logger.info("Create save articles job")
 
         def save_article(article):
             article_object, error_code = article
@@ -181,29 +195,33 @@ class ArticleScraper(object):
         except requests.exceptions.MissingSchema:
             return Page(None, ErrorCodes.MISSING_SCHEMA)
 
-    def _page_to_article(self, page) -> Tuple[Optional[Article], ErrorCodes]:
+    @classmethod
+    def _page_to_article(cls, page) -> Tuple[Optional[Article], ErrorCodes]:
         if page.error_code != ErrorCodes.OK:
             return None, page.error_code
 
         try:
-            article_id, title, author, paragraphs, duration_minutes = self._parse_article_page(page.response.text)
+            article_id, title, author, paragraphs, duration_minutes = cls._parse_article_page(page.response.text)
         except TypeError as e:
             logger.info(f"TypeError: {e}")
             return None, ErrorCodes.DECODING_ERROR
-        except TooShortError:
-            logger.info("Article is too short. Discard.")
-            return None, ErrorCodes.TOO_SHORT
 
         return Article(
             id=article_id,
-            url=page.response.url,
+            url=cls._remove_query_parameters(page.response.url),
             author=author,
             title=title,
             paragraphs=paragraphs,
             duration_minutes=duration_minutes,
         ), ErrorCodes.OK
 
-    def _parse_article_page(self, page_html):
+    @staticmethod
+    def _remove_query_parameters(url):
+        url_components = urlparse(url)
+        return f"{url_components.scheme}://{url_components.netloc}{url_components.path}"
+
+    @staticmethod
+    def _parse_article_page(page_html):
         def get_id():
             parsely_post_id = soup.find("meta", attrs={"name": "parsely-post-id"})
             if parsely_post_id:
@@ -219,9 +237,6 @@ class ArticleScraper(object):
         soup = BeautifulSoup(page_html, "html.parser")
 
         duration_minutes = get_duration_in_minutes()
-        if duration_minutes < self.minimum_duration_minutes:
-            raise TooShortError
-
         article_id = get_id()
         title = soup.find("meta", attrs={"name": "title"})["content"]
         author = soup.find("meta", attrs={"name": "author"})["content"]
@@ -231,7 +246,3 @@ class ArticleScraper(object):
         ]
 
         return article_id, title, author, paragraphs, duration_minutes
-
-
-class TooShortError(RuntimeError):
-    pass
