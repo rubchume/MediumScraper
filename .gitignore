@@ -5,4 +5,6 @@ __pycache__
 articles
 articles_tests
 logs
-SEO_articles_scraper.rar
+.coverage
+SEOArticlesScraper.rar
+articles.rar

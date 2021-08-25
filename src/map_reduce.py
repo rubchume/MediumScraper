@@ -9,7 +9,7 @@ logger = logging.getLogger(f"general_logger.{__name__}")
 
 
 class MapReduce(object):
-    queue_timeout_seconds = 5
+    queue_timeout_seconds = 2
 
     def __init__(
             self,
