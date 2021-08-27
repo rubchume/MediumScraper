@@ -8,7 +8,7 @@ Resources:
       FunctionName: scrape-medium-articles
       Handler: lambda_function.lambda_handler
       Runtime: python3.8
-      CodeUri: function/.
+      CodeUri: ../src/.
       Description: Call the AWS Lambda API
       Timeout: 10
       # Function's execution role
