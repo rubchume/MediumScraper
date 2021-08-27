@@ -8,3 +8,7 @@ logs
 .coverage
 SEOArticlesScraper.rar
 articles.rar
+
+temp
+medium_scraper_credentials.csv
+aws_deployment/package

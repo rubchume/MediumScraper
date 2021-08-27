@@ -1,0 +1,3 @@
+PROFILE="medium_scraper"
+BUCKET="medium-scraper-bucket"
+STACK="medium-scraper-stack"

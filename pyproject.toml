@@ -29,6 +29,8 @@ pytest-mock = "^3.3.1"
 requests-mock = "^1.8.0"
 importlib-metadata = "^4.0.1"
 patool = "^1.12"
+boto3 = "^1.18.29"
+python-dotenv = "^0.19.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
