@@ -11,4 +11,4 @@
 
 set -eo pipefail
 rm -rf package
-pip install --target package/python -r function/requirements.txt
+pip install --target package/python -r ../requirements.txt

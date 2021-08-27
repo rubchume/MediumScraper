@@ -7,9 +7,9 @@ authors = ["Rubén <rchulia@outlook.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 pandas = "^1.2.4"
-jupyterlab = "^3.1.8"
 beautifulsoup4 = "^4.9.3"
-jupyter_nbextensions_configurator = "^0.4.1"
+boto3 = "^1.18.29"
+python-dotenv = "^0.19.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.1"
@@ -29,8 +29,8 @@ pytest-mock = "^3.3.1"
 requests-mock = "^1.8.0"
 importlib-metadata = "^4.0.1"
 patool = "^1.12"
-boto3 = "^1.18.29"
-python-dotenv = "^0.19.0"
+jupyterlab = "^3.1.8"
+jupyter_nbextensions_configurator = "^0.4.1"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -38,7 +38,7 @@ source = ["src", "*/site-packages"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["src/article_scraper.py"]
+omit = ["src/article_scraper.py", "src/lambda_function.py"]
 
 [tool.coverage.report]
 show_missing = true
