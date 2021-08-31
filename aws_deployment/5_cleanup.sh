@@ -26,5 +26,5 @@ while true; do
     esac
 done
 
-rm -f out.yml out.json function/*.pyc
+rm -f cloudformation_template.packaged.yml out.json function/*.pyc
 rm -rf package function/__pycache__

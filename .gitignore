@@ -11,6 +11,3 @@ articles.rar
 
 temp
 medium_scraper_credentials.csv
-aws_deployment/package
-aws_deployment/result.json
-aws_deployment/cloudformation_template_final.yml

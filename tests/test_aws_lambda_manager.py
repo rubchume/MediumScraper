@@ -4,13 +4,13 @@ from unittest import mock
 
 from botocore.response import StreamingBody
 
-from src.aws_lambda_manager import AwsLambdaManager
+from aws_deployment.aws_lambda_manager import AwsLambdaManager
 
 
 class AwsLambdaManagerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        patcher = mock.patch("src.aws_lambda_manager.boto3.session.Session")
+        patcher = mock.patch("aws_deployment.aws_lambda_manager.boto3.session.Session")
         mock_session_function = patcher.start()
 
         session = mock.MagicMock()
