@@ -1,0 +1,5 @@
+package
+result.json
+cloudformation_template.packaged.yml
+cloudformation_template.policy.yml
+cloudformation_template.policy_bucket.yml

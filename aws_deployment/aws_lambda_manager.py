@@ -1,14 +1,19 @@
 import base64
 import json
+from pathlib import Path
 
 import boto3
 from dotenv import dotenv_values
 import yaml
 
 
+AWS_DEPLOYMENT_DIRECTORY = Path(__file__).parent
+DEFAULT_CONFIGURATION_FILE = str(AWS_DEPLOYMENT_DIRECTORY.joinpath("aws_configuration"))
+
+
 class AwsLambdaManager(object):
     def __init__(self, function_name=None):
-        profile_name = dotenv_values("aws_deployment/aws_configuration")["PROFILE"]
+        profile_name = dotenv_values(DEFAULT_CONFIGURATION_FILE)["PROFILE"]
         session = boto3.session.Session(profile_name=profile_name)
         self.client = session.client('lambda')
 
