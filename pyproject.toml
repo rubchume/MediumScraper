@@ -32,6 +32,8 @@ importlib-metadata = "^4.0.1"
 patool = "^1.12"
 jupyterlab = "^3.1.8"
 jupyter_nbextensions_configurator = "^0.4.1"
+paramiko = "^2.7.2"
+scp = "^0.13.6"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

@@ -35,6 +35,7 @@ class AwsLambdaManager(object):
     @staticmethod
     def _get_function_name_from_cloudformation_template():
         yaml.add_constructor(u'!Ref', lambda loader, node: None)
+        yaml.add_constructor(u'!Sub', lambda loader, node: None)
 
         with open("aws_deployment/cloudformation_template.yml") as file:
             data = yaml.load(file, Loader=yaml.FullLoader)

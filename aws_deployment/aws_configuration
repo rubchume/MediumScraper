@@ -1,3 +1,6 @@
 PROFILE="medium_scraper"
 BUCKET="medium-scraper-bucket"
 STACK="medium-scraper-stack"
+AUXILIAR_STACK="medium-scraper-auxiliar-ec2-stack"
+SSH_KEY_PAIR_NAME="ec2-keypair"
+EC2_INSTANCE="medium-scraper-EC2-Python-package"
