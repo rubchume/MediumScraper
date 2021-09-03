@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  KeyPairName:
+    Description: Name of the key pair to use to connect to the EC2 instance through SSH
+    Type: String
+  InstanceName:
+    Description: Name of the EC2 instance
+    Type: String
+  BucketName:
+    Description: Name of the S3 bucket
+    Type: String
+Resources:
+  EC2PythonDistribution:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      IamInstanceProfile: !Ref AuxiliarInstanceProfile
+      Tags:
+        - Key: Name
+          Value: !Ref InstanceName
+      KeyName: !Ref KeyPairName
+      ImageId: ami-072056ff9d3689e7b
+      InstanceType: t2.micro
+  Bucket:
+    DeletionPolicy: Retain
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+    DependsOn:
+      - EC2PythonDistribution
+  AuxiliarInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref S3WritableRole
+  S3WritableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - EC2PythonDistribution
+    Properties:
+      PolicyName: MediumScraperAuxiliarEc2AccessS3Policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: 's3:*'
+            Resource: '*'
+      Roles:
+        - !Ref S3WritableRole

@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: An AWS Lambda application for deploying the Medium scraper.
+Parameters:
+  BucketName:
+    Description: Name of the S3 bucket
+    Type: String
 Resources:
   function:
     Type: AWS::Serverless::Function
@@ -16,6 +20,13 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
         - AWSXrayWriteOnlyAccess
+        - Statement:
+            - Sid: VisualEditor0
+              Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+              Resource: !Sub "arn:aws:s3:::${BucketName}/*"
       Tracing: Active
       Layers:
         - !Ref libs
@@ -24,6 +35,8 @@ Resources:
     Properties:
       LayerName: medium-scraper-lib
       Description: Dependencies for the Medium scraper app.
-      ContentUri: package/.
+      ContentUri:
+        Bucket: !Ref BucketName
+        Key: package.zip
       CompatibleRuntimes:
         - python3.8
