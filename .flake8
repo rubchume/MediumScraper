@@ -1,8 +1,8 @@
 [flake8]
 select = B,B9,BLK,C,E,F,I,S,W
-ignore = E203,E231,E501,W503,S105,S106,S506
+ignore = E203,E231,E501,W503,S105,S106,S506,S601,S605
 max-complexity = 10
-application-import-names = tests,src,aws_deployment
+application-import-names = tests,src,aws_deployment,log
 import-order-style = google
 max-line-length = 120
 #per-file-ignores =

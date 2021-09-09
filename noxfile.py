@@ -20,7 +20,7 @@ import nox
 
 
 nox.options.sessions = "safety", "lint_CI", "mypy", "typeguard", "tests"
-lint_locations = "tests", "src",
+lint_locations = "tests", "src", "aws_deployment"
 mypy_locations = "src",
 
 

@@ -7,10 +7,8 @@ authors = ["Rubén <rchulia@outlook.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 pandas = "^1.2.4"
-beautifulsoup4 = "^4.9.3"
 boto3 = "^1.18.29"
 python-dotenv = "^0.19.0"
-"ruamel.yaml" = "^0.17.16"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.1"
@@ -43,7 +41,7 @@ source = ["src", "*/site-packages"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["src/article_scraper.py", "src/lambda_function.py"]
+omit = ["src/article_scraper.py", "lambda_function.py"]
 
 [tool.coverage.report]
 show_missing = true
