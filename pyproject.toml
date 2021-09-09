@@ -34,6 +34,8 @@ jupyterlab = "^3.1.8"
 jupyter_nbextensions_configurator = "^0.4.1"
 paramiko = "^2.7.2"
 scp = "^0.13.6"
+"ruamel.yaml" = "^0.17.16"
+beautifulsoup4 = "^4.10.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

@@ -1,10 +1,13 @@
 import hashlib
 import logging
 import os
+import re
 from pathlib import Path
 
 import boto3
 import paramiko
+import requests
+from bs4 import BeautifulSoup
 from dotenv import dotenv_values
 from ruamel.yaml import YAML
 from scp import SCPClient
@@ -62,10 +65,6 @@ class AwsDeployer(object):
         self.delete_temporary_files()
 
     def create_bucket_and_build_layer(self):
-        def execute_command(ssh_client, command):
-            stdin, stdout, stderr = ssh_client.exec_command(command)
-            logger.info(stdout.read().decode("ascii"))
-
         if not self._requirements_has_changed_since_last_time():
             if self._bucket_exists() and self._package_is_in_bucket():
                 logger.info("Layer was already built and uploaded")
@@ -95,11 +94,17 @@ class AwsDeployer(object):
 
         ssh_client = self._get_ssh_client()
 
+        yaml = YAML()
+        data = yaml.load(Path("aws_deployment/cloudformation_template.yml"))
+        python_runtime_full = data["Resources"]["function"]["Properties"]["Runtime"]
+        python_runtime = re.match("^python(?P<runtime>.*)$", python_runtime_full).group("runtime")
+        self._install_python_runtime(ssh_client, python_runtime)
+
         self._upload_requirements(ssh_client)
 
-        execute_command(ssh_client, 'pip3 install --target package/python -r requirements.txt')
-        execute_command(ssh_client, f"zip -r {PACKAGE_RELATIVE_PATH} package")
-        execute_command(ssh_client, f"aws s3 cp {PACKAGE_RELATIVE_PATH} s3://{self.bucket}/{PACKAGE_RELATIVE_PATH}")
+        self._execute_command(ssh_client, f'pip{python_runtime} install --target package/python -r requirements.txt')
+        self._execute_command(ssh_client, f"cd package; zip -r ../{PACKAGE_RELATIVE_PATH} python")
+        self._execute_command(ssh_client, f"aws s3 cp {PACKAGE_RELATIVE_PATH} s3://{self.bucket}/{PACKAGE_RELATIVE_PATH}")
 
         self._download_packaged_python_distribution(ssh_client)
 
@@ -112,6 +117,11 @@ class AwsDeployer(object):
         self._delete_auxiliar_stack()
 
         print("Layer was build successfully")
+
+    @staticmethod
+    def _execute_command(ssh_client, command):
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        logger.info(stdout.read().decode("ascii"))
 
     def _bucket_exists(self):
         s3_client = self.session.client("s3")
@@ -267,6 +277,64 @@ class AwsDeployer(object):
         ssh_client.connect(hostname=ip_address, username="ec2-user", pkey=key)
 
         return ssh_client
+
+    @classmethod
+    def _install_python_runtime(cls, ssh_client, runtime_string):
+        logger.info("Installing Python runtime")
+
+        logger.info("  Install tools in EC2 instance")
+        cls._execute_command(ssh_client, "sudo yum install gcc openssl-devel bzip2-devel libffi-devel -y")
+
+        logger.info("  Download Python Runtime")
+        link, runtime_string_with_patch = cls._get_most_recent_python_runtime_patch_link(runtime_string)
+        cls._execute_command(ssh_client, f"sudo wget {link}")
+
+        logger.info("  Extract package")
+        cls._execute_command(ssh_client, f"sudo tar xzf Python-{runtime_string_with_patch}.tgz")
+
+        logger.info("  Install Python")
+        cls._execute_command(
+            ssh_client,
+            f"cd Python-{runtime_string_with_patch}; "
+            f"sudo ./configure --enable-optimizations; "
+            f"sudo make altinstall"
+        )
+
+    @classmethod
+    def _get_most_recent_python_runtime_patch_link(cls, runtime_no_patch_string):
+        chosen_runtime_no_patch = cls._parse_python_runtime(runtime_no_patch_string)
+        major = chosen_runtime_no_patch["major"]
+        minor = chosen_runtime_no_patch["minor"]
+
+        runtimes = cls._get_python_runtimes()
+
+        patches = [
+            int(runtime["patch"])
+            for runtime in runtimes
+            if runtime["major"] == major and runtime["minor"] == minor
+        ]
+
+        max_patch = max(patches)
+
+        runtime_string = f"{major}.{minor}.{max_patch}"
+        return f"https://python.org/ftp/python/{runtime_string}/Python-{runtime_string}.tgz", runtime_string
+
+    @classmethod
+    def _get_python_runtimes(cls):
+        response = requests.get("https://python.org/ftp/python")
+
+        soup = BeautifulSoup(response.content)
+
+        runtime_links = soup.findAll("a", attrs={'href': re.compile("^\d\.\d\.(\d+)/$")})
+
+        return [
+            cls._parse_python_runtime(link.text)
+            for link in runtime_links
+        ]
+
+    @staticmethod
+    def _parse_python_runtime(string):
+        return re.match('^(?P<major>\d)\.(?P<minor>\d)\.?(?P<patch>\d+)?/?$', string).groupdict()
 
     @staticmethod
     def _upload_requirements(ssh_client):
