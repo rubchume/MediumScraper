@@ -1,14 +1,15 @@
 import hashlib
 import logging
 import os
-import re
 from pathlib import Path
+import re
+import shutil
 
 import boto3
-import paramiko
-import requests
 from bs4 import BeautifulSoup
 from dotenv import dotenv_values
+import paramiko
+import requests
 from ruamel.yaml import YAML
 from scp import SCPClient
 
@@ -28,7 +29,7 @@ PACKAGE_RELATIVE_PATH = Path("package.zip")
 PACKAGE_PATH = AWS_DEPLOYMENT_DIRECTORY / PACKAGE_RELATIVE_PATH
 
 CLOUDFORMATION_TEMPLATE_PATH = AWS_DEPLOYMENT_DIRECTORY / "cloudformation_template.yml"
-CLOUDFORMATION_TEMPLATE_PACKAGED_PATH = AWS_DEPLOYMENT_DIRECTORY / f"cloudformation_template.packaged.yml"
+CLOUDFORMATION_TEMPLATE_PACKAGED_PATH = AWS_DEPLOYMENT_DIRECTORY / "cloudformation_template.packaged.yml"
 
 configure_logging()
 logger = logging.getLogger("general_logger")
@@ -49,6 +50,8 @@ class AwsDeployer(object):
     def full_deploy(self):
         logger.info("Create bucket and build layer")
         self.create_bucket_and_build_layer()
+        logger.info("Prepare code directory")
+        self.prepare_code_directory()
         logger.info("Package")
         self.package()
         logger.info("Deploy stack")
@@ -325,7 +328,7 @@ class AwsDeployer(object):
 
         soup = BeautifulSoup(response.content)
 
-        runtime_links = soup.findAll("a", attrs={'href': re.compile("^\d\.\d\.(\d+)/$")})
+        runtime_links = soup.findAll("a", attrs={'href': re.compile(r"^\d\.\d\.(\d+)/$")})
 
         return [
             cls._parse_python_runtime(link.text)
@@ -334,7 +337,7 @@ class AwsDeployer(object):
 
     @staticmethod
     def _parse_python_runtime(string):
-        return re.match('^(?P<major>\d)\.(?P<minor>\d)\.?(?P<patch>\d+)?/?$', string).groupdict()
+        return re.match(r'^(?P<major>\d)\.(?P<minor>\d)\.?(?P<patch>\d+)?/?$', string).groupdict()
 
     @staticmethod
     def _upload_requirements(ssh_client):
@@ -349,6 +352,25 @@ class AwsDeployer(object):
     def _delete_auxiliar_stack(self):
         cloudformation_client = self.session.client("cloudformation")
         cloudformation_client.delete_stack(StackName=self.auxiliar_ec2_stack)
+
+    def prepare_code_directory(self):
+        yaml = YAML()
+        data = yaml.load(CLOUDFORMATION_TEMPLATE_PATH)
+
+        code_directory = AWS_DEPLOYMENT_DIRECTORY / Path(data["Resources"]["function"]["Properties"]["CodeUri"])
+        shutil.rmtree(code_directory, ignore_errors=True)
+        code_directory.mkdir(parents=True, exist_ok=True)
+
+        lambda_function_handler = data["Resources"]["function"]["Properties"]["Handler"]
+        lambda_function_file_relative = Path(
+            re.match(r"(?P<file>.*)\..*", lambda_function_handler).group("file")
+        ).with_suffix(".py")
+        lambda_function_file = ROOT_DIRECTORY / lambda_function_file_relative
+
+        shutil.copy(lambda_function_file, code_directory / lambda_function_file_relative)
+
+        source_folder = ROOT_DIRECTORY / "src"
+        shutil.copytree(source_folder, code_directory / "src")
 
     def package(self):
         os.system(
@@ -374,9 +396,7 @@ class AwsDeployer(object):
 
     def delete_logs(self):
         yaml = YAML()
-
-        data = yaml.load(Path("aws_deployment/cloudformation_template.yml"))
-
+        data = yaml.load(CLOUDFORMATION_TEMPLATE_PATH)
         function_name = data["Resources"]["function"]["Properties"]["FunctionName"]
 
         logs_client = self.session.client("logs")

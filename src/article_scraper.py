@@ -12,10 +12,10 @@ import warnings
 from bs4 import BeautifulSoup
 import requests
 
-from src.article import Article
-from src.article_searcher.archive_searcher import ArchiveSearcher
-from src.article_storage import ArticleStorage
-from src.map_reduce import MapReduce
+from .article import Article
+from .article_searcher.archive_searcher import ArchiveSearcher
+from .article_storage import ArticleStorage
+from .map_reduce import MapReduce
 
 logger = logging.getLogger(f"general_logger.{__name__}")
 

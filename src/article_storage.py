@@ -1,11 +1,12 @@
 import os
 from os import listdir
 from os import path
+from pathlib import Path
 import shutil
 
 import pandas as pd
 
-from src.article import Article
+from .article import Article
 
 
 class ArticleStorage(object):
@@ -38,7 +39,7 @@ class ArticleStorage(object):
                 else:
                     raise ValueError("New storage must be set in an empty or not-existent directory")
         else:
-            os.mkdir(directory)
+            Path(directory).mkdir(parents=True, exist_ok=True)
 
         self.directory = directory
         self._metadata = []
